@@ -1,0 +1,19 @@
+[theme]
+# Memaksa base theme menjadi Light (Terang)
+base = "light"
+
+# Warna Utama (Primary Color) - Digunakan untuk tombol, slider, dan link
+# Saya pilihkan warna "Royal Blue" agar senada dengan garis grafik "Actual Price"
+primaryColor = "#1f77b4"
+
+# Warna Latar Belakang (Background) - Putih bersih
+backgroundColor = "#ffffff"
+
+# Warna Latar Belakang Sidebar - Abu-abu sangat muda agar ada pemisah visual yang halus
+secondaryBackgroundColor = "#f0f2f6"
+
+# Warna Teks - Hitam pekat agar mudah dibaca (kontras tinggi)
+textColor = "#262730"
+
+# Font - Sans serif terlihat lebih modern untuk aplikasi data
+font = "sans serif"
