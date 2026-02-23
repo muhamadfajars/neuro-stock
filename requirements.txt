@@ -6,4 +6,5 @@ tensorflow
 scikit-learn
 plotly
 yfinance>=0.2.37
+curl-cffi>=0.14.0
 joblib
