@@ -15,6 +15,7 @@ import joblib
 import os
 import time
 import yfinance as yf
+import requests
 
 # ====================================================
 # 1. CONFIG & STYLE
@@ -1093,7 +1094,15 @@ if menu == "1. General Tool":
         if st.button("📥 Tarik Data"):
             with st.spinner(f"Mengunduh data {ticker_symbol}..."):
                 try:
-                    df_yf = yf.download(ticker_symbol, start=start_date, end=end_date, threads=False, progress=False)
+                    # --- TRIK ANTI-BLOKIR YAHOO FINANCE ---
+                    session = requests.Session()
+                    session.headers.update({
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+                    })
+                    
+                    # Masukkan session buatan kita ke dalam yf.download
+                    df_yf = yf.download(ticker_symbol, start=start_date, end=end_date, session=session, progress=False)
+                    
                     if len(df_yf) > 0:
                         df_yf.reset_index(inplace=True)
                         if isinstance(df_yf.columns, pd.MultiIndex):
@@ -1102,15 +1111,14 @@ if menu == "1. General Tool":
                         st.session_state.custom_data = df_yf
                         st.session_state.train_results = None 
                         
-                        # UPDATE: Gunakan kolom agar alert tidak lebar full layar
                         c_succ, c_empty = st.columns([1, 2]) 
                         c_succ.success(f"Berhasil menarik {len(df_yf)} baris data!")
                         
                     else:
-                        st.error("Data tidak ditemukan.")
+                        st.error("Data kosong. Yahoo Finance memblokir IP server Streamlit Cloud.")
                 except Exception as e:
-                    st.error(f"Gagal mengambil data: {e}")
-
+                    st.error(f"Gagal mengambil data: Server Yahoo Finance menolak koneksi Cloud. Gunakan opsi 'Upload File CSV'.")
+                    
     # OPSI B: UPLOAD MANUAL
     elif input_method == "📂 Upload File Dataset (Manual)":
         
