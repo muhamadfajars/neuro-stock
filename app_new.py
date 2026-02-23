@@ -1094,31 +1094,41 @@ if menu == "1. General Tool":
         if st.button("📥 Tarik Data"):
             with st.spinner(f"Mengunduh data {ticker_symbol}..."):
                 try:
-                    # --- TRIK ANTI-BLOKIR YAHOO FINANCE ---
-                    session = requests.Session()
-                    session.headers.update({
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-                    })
+                    import yfinance as yf
+                    # Trik 1: Coba dengan yfinance standard tapi override default date format
+                    df_yf = yf.download(ticker_symbol, start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'), progress=False)
                     
-                    # Masukkan session buatan kita ke dalam yf.download
-                    df_yf = yf.download(ticker_symbol, start=start_date, end=end_date, session=session, progress=False)
+                    # Trik 2: Jika masih kosong (kemungkinan besar diblokir), gunakan Ticker Module
+                    if df_yf.empty:
+                        ticker_obj = yf.Ticker(ticker_symbol)
+                        df_yf = ticker_obj.history(start=start_date, end=end_date)
                     
                     if len(df_yf) > 0:
                         df_yf.reset_index(inplace=True)
+                        
+                        # Rapikan MultiIndex columns jika terjadi (akibat yf versi baru)
                         if isinstance(df_yf.columns, pd.MultiIndex):
                             df_yf.columns = df_yf.columns.get_level_values(0)
+                            
+                        # Format ulang nama kolom Date jika jadi 'Datetime'
+                        if 'Datetime' in df_yf.columns:
+                            df_yf.rename(columns={'Datetime': 'Date'}, inplace=True)
+                            
+                        # Pastikan zona waktu dihilangkan agar kompatibel dengan Plotly
+                        if pd.api.types.is_datetime64tz_dtype(df_yf['Date']):
+                            df_yf['Date'] = df_yf['Date'].dt.tz_localize(None)
                         
                         st.session_state.custom_data = df_yf
                         st.session_state.train_results = None 
                         
                         c_succ, c_empty = st.columns([1, 2]) 
-                        c_succ.success(f"Berhasil menarik {len(df_yf)} baris data!")
+                        c_succ.success(f"Berhasil menarik {len(df_yf)} baris data via Ticker API!")
                         
                     else:
-                        st.error("Data kosong. Yahoo Finance memblokir IP server Streamlit Cloud.")
+                        st.error("Data kosong. Server menolak koneksi. Harap gunakan fitur 'Upload CSV Manual'.")
                 except Exception as e:
-                    st.error(f"Gagal mengambil data: Server Yahoo Finance menolak koneksi Cloud. Gunakan opsi 'Upload File CSV'.")
-                    
+                    st.error(f"Gagal mengambil data dari API: {e}. Gunakan opsi Upload File CSV.")
+
     # OPSI B: UPLOAD MANUAL
     elif input_method == "📂 Upload File Dataset (Manual)":
         
