@@ -1093,7 +1093,7 @@ if menu == "1. General Tool":
         if st.button("📥 Tarik Data"):
             with st.spinner(f"Mengunduh data {ticker_symbol}..."):
                 try:
-                    df_yf = yf.download(ticker_symbol, start=start_date, end=end_date, threads=False, progress=False)
+                    df_yf = yf.download(ticker_symbol, start=start_date, end=end_date)
                     if len(df_yf) > 0:
                         df_yf.reset_index(inplace=True)
                         if isinstance(df_yf.columns, pd.MultiIndex):

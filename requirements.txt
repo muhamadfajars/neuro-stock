@@ -5,5 +5,5 @@ numpy
 tensorflow
 scikit-learn
 plotly
-yfinance
+yfinance>=0.2.37
 joblib
